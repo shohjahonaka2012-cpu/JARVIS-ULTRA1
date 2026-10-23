@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="JARVIS ULTRA — Uzbek and English AI voice assistant">
+  <title>JARVIS ULTRA</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:dark;--bg:#050b15;--panel:#0b1728;--line:#173650;--cyan:#42e8ff;--blue:#438dff;--text:#e9f6ff;--muted:#8ba9bd}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#12365a 0,transparent 48%),var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);display:flex;justify-content:center}
+    .app{width:min(100%,900px);padding:22px 16px 28px;display:flex;flex-direction:column;min-height:100vh;gap:18px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border:1px solid #2bdcf4;border-radius:15px;display:grid;place-items:center;color:var(--cyan);font-weight:900;box-shadow:0 0 24px #16c9f633}
+    h1{font-size:clamp(18px,4vw,25px);letter-spacing:.14em;margin:0}.sub{font-size:11px;letter-spacing:.22em;color:var(--cyan);margin-top:4px}
+    .status{border:1px solid var(--line);border-radius:99px;padding:8px 11px;color:#9ce7c3;font-size:11px;white-space:nowrap}
+    .hero{border:1px solid #17425c;border-radius:24px;background:linear-gradient(145deg,#0b1c30eF,#07101df2);padding:24px 18px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;box-shadow:0 20px 60px #0005}
+    .orb-wrap{width:150px;height:150px;display:grid;place-items:center;position:relative}
+    .orb{width:112px;height:112px;border-radius:50%;border:2px solid #47eaff;background:radial-gradient(circle at 35% 25%,#b7ffff 0,#2b9ce8 13%,#0d315d 45%,#06101f 72%);box-shadow:0 0 20px #32dcff88,0 0 55px #167cff55,inset 0 0 24px #3cf4ff77;animation:pulse 3s infinite}
+    .orb:before,.orb:after{content:"";position:absolute;border:1px solid #3deaff80;border-radius:50%;inset:5px;animation:spin 12s linear infinite}.orb:after{inset:18px;border-style:dashed;animation-direction:reverse;animation-duration:18s}
+    @keyframes pulse{50%{transform:scale(1.045);box-shadow:0 0 30px #32dcffb0,0 0 70px #167cff77}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .hero h2{margin:0;font-size:21px}.hero p{margin:0;color:var(--muted);font-size:14px;max-width:500px;line-height:1.5}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    button,select{font:inherit;color:var(--text);background:#10253a;border:1px solid #28506b;border-radius:12px;padding:11px 14px;cursor:pointer}
+    button:hover{border-color:var(--cyan)}button.primary{background:linear-gradient(110deg,#087db7,#2254b8);border-color:#39dff8;font-weight:700}
+    .chat{flex:1;min-height:260px;border:1px solid var(--line);border-radius:20px;background:#071321d9;display:flex;flex-direction:column;overflow:hidden}
+    .chathead{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em}
+    #messages{padding:15px;display:flex;flex-direction:column;gap:12px;flex:1;max-height:42vh;overflow:auto}
+    .msg{max-width:88%;white-space:pre-wrap;line-height:1.5;font-size:14px;padding:12px 14px;border-radius:15px}
+    .assistant{align-self:flex-start;background:#10283d;border:1px solid #1c4965}.user{align-self:flex-end;background:#123d64;border:1px solid #2777a9}
+    .composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}#prompt{min-width:0;flex:1;background:#050e19;color:var(--text);border:1px solid #1c4058;border-radius:12px;padding:13px;font:inherit;outline:none}#prompt:focus{border-color:var(--cyan)}
+    .foot{text-align:center;font-size:11px;color:#68879d}
+    @media(min-width:700px){.app{padding-top:30px}.hero{padding:28px}.orb-wrap{width:170px;height:170px}.orb{width:125px;height:125px}#messages{max-height:46vh}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="logo">J</div><div><h1>JARVIS ULTRA</h1><div class="sub">PERSONAL AI SYSTEM</div></div></div>
+    <div class="status" id="status">● SYSTEM READY</div>
+  </header>
+  <section class="hero">
+    <div class="orb-wrap"><div class="orb"></div></div>
+    <h2 id="heroTitle">Salom, men JARVISman.</h2>
+    <p id="heroText">Savolingni yoz yoki mikrofon orqali gapir. Men o‘zbek va ingliz tillarida yordam beraman.</p>
+    <div class="controls">
+      <button class="primary" id="micBtn">🎙 Gapirish</button>
+      <select id="language" aria-label="Til"><option value="uz">O‘zbekcha</option><option value="en">English</option></select>
+      <button id="voiceBtn">🔊 Ovoz: yoqilgan</button>
+      <button id="installBtn" hidden>⬇ Ilova sifatida o‘rnatish</button>
+    </div>
+  </section>
+  <section class="chat">
+    <div class="chathead"><span>AI CONVERSATION</span><button id="clearBtn">Tozalash</button></div>
+    <div id="messages" aria-live="polite"><div class="msg assistant">Salom! Men JARVIS ULTRA. Sizga qanday yordam bera olaman?</div></div>
+    <form class="composer" id="chatForm"><input id="prompt" autocomplete="off" placeholder="Xabaringizni yozing..." maxlength="4000" required><button class="primary" id="sendBtn" type="submit">Yuborish ➤</button></form>
+  </section>
+  <div class="foot">JARVIS ULTRA • AI kalit serverda saqlanadi • PWA-ready</div>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  const messagesEl = $("messages"), promptEl = $("prompt"), statusEl = $("status");
+  let history = [], voiceOn = true, recognition = null, installPrompt = null;
+  function addMessage(role, content) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = content;
+    messagesEl.appendChild(div); messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+  function setStatus(text, good=false) { statusEl.textContent = "● " + text; statusEl.style.color = good ? "#9ce7c3" : "#ffca85"; }
+  function speak(text) {
+    if (!voiceOn || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = $("language").value === "en" ? "en-US" : "uz-UZ";
+    utterance.rate = 1; window.speechSynthesis.speak(utterance);
+  }
+  $("chatForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = promptEl.value.trim(); if (!text) return;
+    promptEl.value = ""; addMessage("user", text);
+    history.push({role:"user",content:text});
+    $("sendBtn").disabled = true; setStatus("AI ISHLAYAPTI…");
+    try {
+      const response = await fetch("/api/chat", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({messages:history,language:$("language").value})
+      });
+      const data = await response.json().catch(()=>({}));
+      if (!response.ok) throw new Error(data.error || "AI serverga ulanishda xatolik.");
+      history.push({role:"assistant",content:data.reply});
+      addMessage("assistant",data.reply); speak(data.reply); setStatus("AI CONNECTED",true);
+    } catch (err) {
+      const msg = err.message || "Xatolik yuz berdi.";
+      addMessage("assistant","Hozir javob olib bo‘lmadi: " + msg);
+      setStatus("CONNECTION ISSUE");
+    } finally { $("sendBtn").disabled = false; promptEl.focus(); }
+  });
+  $("clearBtn").addEventListener("click",()=>{history=[];messagesEl.innerHTML="";addMessage("assistant",$("language").value==="en"?"Chat cleared. How can I help?":"Suhbat tozalandi. Qanday yordam beray?");});
+  $("voiceBtn").addEventListener("click",()=>{voiceOn=!voiceOn;$("voiceBtn").textContent=voiceOn?"🔊 Ovoz: yoqilgan":"🔇 Ovoz: o‘chirilgan";if(!voiceOn&&window.speechSynthesis)window.speechSynthesis.cancel();});
+  $("language").addEventListener("change",()=>{const en=$("language").value==="en";$("heroTitle").textContent=en?"Hello, I'm JARVIS.":"Salom, men JARVISman.";$("heroText").textContent=en?"Type a question or speak using the microphone.":"Savolingni yoz yoki mikrofon orqali gapir.";promptEl.placeholder=en?"Type your message...":"Xabaringizni yozing...";$("sendBtn").textContent=en?"Send ➤":"Yuborish ➤";$("micBtn").textContent=en?"🎙 Speak":"🎙 Gapirish";});
+  $("micBtn").addEventListener("click",()=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){addMessage("assistant","Brauzeringda ovoz orqali tanish funksiyasi mavjud emas. Chrome’da sinab ko‘r.");return;}
+    if(recognition){recognition.stop();recognition=null;return;}
+    recognition=new SR();recognition.lang=$("language").value==="en"?"en-US":"uz-UZ";recognition.interimResults=false;
+    recognition.onresult=e=>{promptEl.value=e.results[0][0].transcript;promptEl.focus();};
+    recognition.onerror=()=>addMessage("assistant","Mikrofon ishlamadi. Brauzer ruxsatlarini tekshir.");
+    recognition.onend=()=>{recognition=null;$("micBtn").textContent=$("language").value==="en"?"🎙 Speak":"🎙 Gapirish";};
+    recognition.start();$("micBtn").textContent="⏹ To‘xtatish";
+  });
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("installBtn").hidden=false;});
+  $("installBtn").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("installBtn").hidden=true;}else alert("Chrome menyusidan Add to Home screen / Bosh ekranga qo‘shish bandini tanlang.");});
+  fetch("/api/health").then(r=>r.json()).then(d=>setStatus(d.configured?"AI READY":"API KEY NEEDED",d.configured)).catch(()=>setStatus("SERVER STARTING"));
+  if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
+</body>
+</html>

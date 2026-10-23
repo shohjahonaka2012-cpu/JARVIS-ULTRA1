@@ -1,122 +1,463 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07111f">
-  <meta name="description" content="JARVIS ULTRA — Uzbek and English AI voice assistant">
-  <title>JARVIS ULTRA</title>
+  <title>JARVIS ULTRA | Personal AI</title>
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <style>
-    :root{color-scheme:dark;--bg:#050b15;--panel:#0b1728;--line:#173650;--cyan:#42e8ff;--blue:#438dff;--text:#e9f6ff;--muted:#8ba9bd}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#12365a 0,transparent 48%),var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);display:flex;justify-content:center}
-    .app{width:min(100%,900px);padding:22px 16px 28px;display:flex;flex-direction:column;min-height:100vh;gap:18px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border:1px solid #2bdcf4;border-radius:15px;display:grid;place-items:center;color:var(--cyan);font-weight:900;box-shadow:0 0 24px #16c9f633}
-    h1{font-size:clamp(18px,4vw,25px);letter-spacing:.14em;margin:0}.sub{font-size:11px;letter-spacing:.22em;color:var(--cyan);margin-top:4px}
-    .status{border:1px solid var(--line);border-radius:99px;padding:8px 11px;color:#9ce7c3;font-size:11px;white-space:nowrap}
-    .hero{border:1px solid #17425c;border-radius:24px;background:linear-gradient(145deg,#0b1c30eF,#07101df2);padding:24px 18px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;box-shadow:0 20px 60px #0005}
-    .orb-wrap{width:150px;height:150px;display:grid;place-items:center;position:relative}
-    .orb{width:112px;height:112px;border-radius:50%;border:2px solid #47eaff;background:radial-gradient(circle at 35% 25%,#b7ffff 0,#2b9ce8 13%,#0d315d 45%,#06101f 72%);box-shadow:0 0 20px #32dcff88,0 0 55px #167cff55,inset 0 0 24px #3cf4ff77;animation:pulse 3s infinite}
-    .orb:before,.orb:after{content:"";position:absolute;border:1px solid #3deaff80;border-radius:50%;inset:5px;animation:spin 12s linear infinite}.orb:after{inset:18px;border-style:dashed;animation-direction:reverse;animation-duration:18s}
-    @keyframes pulse{50%{transform:scale(1.045);box-shadow:0 0 30px #32dcffb0,0 0 70px #167cff77}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .hero h2{margin:0;font-size:21px}.hero p{margin:0;color:var(--muted);font-size:14px;max-width:500px;line-height:1.5}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-    button,select{font:inherit;color:var(--text);background:#10253a;border:1px solid #28506b;border-radius:12px;padding:11px 14px;cursor:pointer}
-    button:hover{border-color:var(--cyan)}button.primary{background:linear-gradient(110deg,#087db7,#2254b8);border-color:#39dff8;font-weight:700}
-    .chat{flex:1;min-height:260px;border:1px solid var(--line);border-radius:20px;background:#071321d9;display:flex;flex-direction:column;overflow:hidden}
-    .chathead{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em}
-    #messages{padding:15px;display:flex;flex-direction:column;gap:12px;flex:1;max-height:42vh;overflow:auto}
-    .msg{max-width:88%;white-space:pre-wrap;line-height:1.5;font-size:14px;padding:12px 14px;border-radius:15px}
-    .assistant{align-self:flex-start;background:#10283d;border:1px solid #1c4965}.user{align-self:flex-end;background:#123d64;border:1px solid #2777a9}
-    .composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}#prompt{min-width:0;flex:1;background:#050e19;color:var(--text);border:1px solid #1c4058;border-radius:12px;padding:13px;font:inherit;outline:none}#prompt:focus{border-color:var(--cyan)}
-    .foot{text-align:center;font-size:11px;color:#68879d}
-    @media(min-width:700px){.app{padding-top:30px}.hero{padding:28px}.orb-wrap{width:170px;height:170px}.orb{width:125px;height:125px}#messages{max-height:46vh}}
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0d1b2c;
+      --line: #1b3850;
+      --cyan: #35e6ff;
+      --text: #e9f7ff;
+      --muted: #8da8bc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #102b43, var(--bg) 65%);
+      color: var(--text);
+      font-family: system-ui, Arial, sans-serif;
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app {
+      max-width: 900px;
+      min-height: 100vh;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      color: var(--cyan);
+      font-size: 25px;
+      box-shadow: 0 0 22px #35e6ff25;
+    }
+    h1 { font-size: 19px; letter-spacing: 2px; margin: 0; }
+    .status { color: var(--cyan); font-size: 12px; margin-top: 5px; }
+    .top-actions { margin-left: auto; display: flex; gap: 7px; }
+    .small-btn, .send-btn, .mic-btn {
+      color: var(--text);
+      background: #10273a;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .small-btn:hover, .mic-btn:hover { border-color: var(--cyan); }
+    .hero { text-align: center; padding: 28px 10px 20px; }
+    .orb {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--cyan);
+      border-radius: 50%;
+      color: var(--cyan);
+      font-size: 37px;
+      box-shadow: 0 0 28px #35e6ff30, inset 0 0 24px #35e6ff15;
+      animation: glow 3s infinite ease-in-out;
+    }
+    @keyframes glow {
+      50% { box-shadow: 0 0 40px #35e6ff50, inset 0 0 30px #35e6ff25; }
+    }
+    .hero h2 { margin: 0 0 8px; font-size: 23px; }
+    .hero p { margin: 0; color: var(--muted); font-size: 14px; }
+    .chat {
+      flex: 1;
+      min-height: 200px;
+      padding: 8px 0 20px;
+    }
+    .message {
+      max-width: 88%;
+      width: fit-content;
+      padding: 12px 15px;
+      border-radius: 16px;
+      margin: 12px 0;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .assistant {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top-left-radius: 4px;
+    }
+    .user {
+      margin-left: auto;
+      background: #103348;
+      border: 1px solid #1b627b;
+      border-top-right-radius: 4px;
+    }
+    .who {
+      display: block;
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      letter-spacing: .5px;
+    }
+    .typing { color: var(--muted); font-size: 13px; padding: 8px; }
+    .composer {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 0 max(12px, env(safe-area-inset-bottom));
+      background: linear-gradient(transparent, var(--bg) 20%);
+    }
+    .input-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: end;
+      padding: 8px;
+      background: #0b1928;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+    textarea {
+      flex: 1;
+      min-width: 0;
+      resize: vertical;
+      max-height: 150px;
+      min-height: 42px;
+      padding: 11px 7px;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--text);
+    }
+    textarea::placeholder { color: #70899d; }
+    .send-btn {
+      background: var(--cyan);
+      color: #03121d;
+      border-color: var(--cyan);
+      font-weight: 800;
+      padding: 11px 15px;
+    }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .note { text-align: center; color: var(--muted); font-size: 11px; margin-top: 9px; }
+    @media (max-width: 480px) {
+      .app { padding: 12px; }
+      h1 { font-size: 16px; }
+      .small-btn { padding: 9px; }
+      .hero { padding-top: 22px; }
+      .message { max-width: 94%; }
+    }
   </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="brand"><div class="logo">J</div><div><h1>JARVIS ULTRA</h1><div class="sub">PERSONAL AI SYSTEM</div></div></div>
-    <div class="status" id="status">● SYSTEM READY</div>
-  </header>
-  <section class="hero">
-    <div class="orb-wrap"><div class="orb"></div></div>
-    <h2 id="heroTitle">Salom, men JARVISman.</h2>
-    <p id="heroText">Savolingni yoz yoki mikrofon orqali gapir. Men o‘zbek va ingliz tillarida yordam beraman.</p>
-    <div class="controls">
-      <button class="primary" id="micBtn">🎙 Gapirish</button>
-      <select id="language" aria-label="Til"><option value="uz">O‘zbekcha</option><option value="en">English</option></select>
-      <button id="voiceBtn">🔊 Ovoz: yoqilgan</button>
-      <button id="installBtn" hidden>⬇ Ilova sifatida o‘rnatish</button>
+    <div class="logo">✧</div>
+    <div>
+      <h1>JARVIS ULTRA</h1>
+      <div class="status">● AI SYSTEM ONLINE</div>
     </div>
+    <div class="top-actions">
+      <button class="small-btn" id="langBtn" title="Tilni almashtirish">UZ</button>
+      <button class="small-btn" id="clearBtn" title="Suhbatni tozalash">🗑</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="orb">J</div>
+    <h2 id="greeting">Xush kelibsiz, Janob Shohjahon</h2>
+    <p id="subtitle">Men sizning shaxsiy AI yordamchingizman.</p>
   </section>
-  <section class="chat">
-    <div class="chathead"><span>AI CONVERSATION</span><button id="clearBtn">Tozalash</button></div>
-    <div id="messages" aria-live="polite"><div class="msg assistant">Salom! Men JARVIS ULTRA. Sizga qanday yordam bera olaman?</div></div>
-    <form class="composer" id="chatForm"><input id="prompt" autocomplete="off" placeholder="Xabaringizni yozing..." maxlength="4000" required><button class="primary" id="sendBtn" type="submit">Yuborish ➤</button></form>
+
+  <main class="chat" id="messages" aria-live="polite"></main>
+
+  <div class="typing" id="typing" hidden>JARVIS javob tayyorlamoqda...</div>
+
+  <section class="composer">
+    <div class="input-wrap">
+      <button class="mic-btn" id="micBtn" title="Ovoz orqali gapirish">🎙️</button>
+      <textarea id="prompt" rows="1" placeholder="Janob Shohjahon, qanday yordam beray?"></textarea>
+      <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+    <div class="note" id="footnote">JARVIS ULTRA · Shaxsiy AI yordamchi</div>
   </section>
-  <div class="foot">JARVIS ULTRA • AI kalit serverda saqlanadi • PWA-ready</div>
 </div>
+
 <script>
+(() => {
+  "use strict";
+
   const $ = id => document.getElementById(id);
-  const messagesEl = $("messages"), promptEl = $("prompt"), statusEl = $("status");
-  let history = [], voiceOn = true, recognition = null, installPrompt = null;
+  const STORAGE_KEY = "jarvisUltraHistory";
+  const LANG_KEY = "jarvisUltraLanguage";
+
+  let history = [];
+  let language = localStorage.getItem(LANG_KEY) || "uz";
+  let busy = false;
+  let recognition = null;
+
+  const messagesEl = $("messages");
+  const promptEl = $("prompt");
+  const sendBtn = $("sendBtn");
+  const typingEl = $("typing");
+
+  const words = {
+    uz: {
+      greeting: "Xush kelibsiz, Janob Shohjahon",
+      subtitle: "Men sizning shaxsiy AI yordamchingizman.",
+      placeholder: "Janob Shohjahon, qanday yordam beray?",
+      send: "➤",
+      welcome: "Assalomu alaykum, Janob Shohjahon! Men JARVIS ULTRA, sizning shaxsiy AI yordamchingizman. Sizga qanday yordam beray?",
+      thinking: "JARVIS javob tayyorlamoqda...",
+      error: "Kechirasiz, hozir javob olib bo‘lmadi. Birozdan keyin yana urinib ko‘ring.",
+      cleared: "Suhbat tozalandi. Qanday yordam beray?",
+      confirmClear: "Barcha suhbat tarixini o‘chirmoqchimisiz?",
+      user: "JANOB SHOHJAHON",
+      assistant: "JARVIS ULTRA"
+    },
+    en: {
+      greeting: "Welcome, Mr. Shohjahon",
+      subtitle: "I am your personal AI assistant.",
+      placeholder: "Mr. Shohjahon, how can I help?",
+      send: "➤",
+      welcome: "Hello, Mr. Shohjahon! I am JARVIS ULTRA, your personal AI assistant. How may I help you?",
+      thinking: "JARVIS is preparing a response...",
+      error: "Sorry, I could not get a response. Please try again shortly.",
+      cleared: "Chat cleared. How can I help?",
+      confirmClear: "Do you want to delete the entire chat history?",
+      user: "MR. SHOHJAHON",
+      assistant: "JARVIS ULTRA"
+    }
+  };
+
+  function saveChat() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    } catch (e) {
+      console.warn("Chat history could not be saved.", e);
+    }
+  }
+
   function addMessage(role, content) {
-    const div = document.createElement("div");
-    div.className = "msg " + role;
-    div.textContent = content;
-    messagesEl.appendChild(div); messagesEl.scrollTop = messagesEl.scrollHeight;
+    const item = document.createElement("div");
+    item.className = "message " + (role === "user" ? "user" : "assistant");
+
+    const who = document.createElement("span");
+    who.className = "who";
+    who.textContent = role === "user" ? words[language].user : words[language].assistant;
+
+    const body = document.createElement("div");
+    body.textContent = String(content ?? "");
+
+    item.append(who, body);
+    messagesEl.appendChild(item);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return item;
   }
-  function setStatus(text, good=false) { statusEl.textContent = "● " + text; statusEl.style.color = good ? "#9ce7c3" : "#ffca85"; }
-  function speak(text) {
-    if (!voiceOn || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = $("language").value === "en" ? "en-US" : "uz-UZ";
-    utterance.rate = 1; window.speechSynthesis.speak(utterance);
+
+  function renderHistory() {
+    messagesEl.replaceChildren();
+    history.forEach(item => {
+      if (item && (item.role === "user" || item.role === "assistant")) {
+        addMessage(item.role, item.content);
+      }
+    });
   }
-  $("chatForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const text = promptEl.value.trim(); if (!text) return;
-    promptEl.value = ""; addMessage("user", text);
-    history.push({role:"user",content:text});
-    $("sendBtn").disabled = true; setStatus("AI ISHLAYAPTI…");
+
+  function loadHistory() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      if (Array.isArray(saved)) {
+        history = saved.filter(item =>
+          item &&
+          (item.role === "user" || item.role === "assistant") &&
+          typeof item.content === "string"
+        );
+      }
+    } catch (e) {
+      history = [];
+    }
+
+    if (history.length) {
+      renderHistory();
+    } else {
+      history = [{
+        role: "assistant",
+        content: words[language].welcome
+      }];
+      saveChat();
+      renderHistory();
+    }
+  }
+
+  function updateLanguage() {
+    const w = words[language];
+    document.documentElement.lang = language;
+    $("greeting").textContent = w.greeting;
+    $("subtitle").textContent = w.subtitle;
+    promptEl.placeholder = w.placeholder;
+    $("langBtn").textContent = language.toUpperCase();
+    typingEl.textContent = w.thinking;
+    $("footnote").textContent = "JARVIS ULTRA · " +
+      (language === "uz" ? "Shaxsiy AI yordamchi" : "Personal AI assistant");
+    renderHistory();
+  }
+
+  async function sendMessage() {
+    const text = promptEl.value.trim();
+    if (!text || busy) return;
+
+    busy = true;
+    sendBtn.disabled = true;
+    promptEl.disabled = true;
+
+    history.push({ role: "user", content: text });
+    saveChat();
+    addMessage("user", text);
+    promptEl.value = "";
+    typingEl.hidden = false;
+
     try {
       const response = await fetch("/api/chat", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({messages:history,language:$("language").value})
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          history: history.slice(-20),
+          language: language
+        })
       });
-      const data = await response.json().catch(()=>({}));
-      if (!response.ok) throw new Error(data.error || "AI serverga ulanishda xatolik.");
-      history.push({role:"assistant",content:data.reply});
-      addMessage("assistant",data.reply); speak(data.reply); setStatus("AI CONNECTED",true);
-    } catch (err) {
-      const msg = err.message || "Xatolik yuz berdi.";
-      addMessage("assistant","Hozir javob olib bo‘lmadi: " + msg);
-      setStatus("CONNECTION ISSUE");
-    } finally { $("sendBtn").disabled = false; promptEl.focus(); }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || "HTTP " + response.status);
+      }
+
+      if (typeof data.reply !== "string" || !data.reply.trim()) {
+        throw new Error("Server javobida reply topilmadi");
+      }
+
+      history.push({ role: "assistant", content: data.reply });
+      saveChat();
+      addMessage("assistant", data.reply);
+    } catch (error) {
+      console.error("JARVIS API error:", error);
+      const message = words[language].error;
+      addMessage("assistant", message);
+    } finally {
+      typingEl.hidden = true;
+      busy = false;
+      sendBtn.disabled = false;
+      promptEl.disabled = false;
+      promptEl.focus();
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+
+  promptEl.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
   });
-  $("clearBtn").addEventListener("click",()=>{history=[];messagesEl.innerHTML="";addMessage("assistant",$("language").value==="en"?"Chat cleared. How can I help?":"Suhbat tozalandi. Qanday yordam beray?");});
-  $("voiceBtn").addEventListener("click",()=>{voiceOn=!voiceOn;$("voiceBtn").textContent=voiceOn?"🔊 Ovoz: yoqilgan":"🔇 Ovoz: o‘chirilgan";if(!voiceOn&&window.speechSynthesis)window.speechSynthesis.cancel();});
-  $("language").addEventListener("change",()=>{const en=$("language").value==="en";$("heroTitle").textContent=en?"Hello, I'm JARVIS.":"Salom, men JARVISman.";$("heroText").textContent=en?"Type a question or speak using the microphone.":"Savolingni yoz yoki mikrofon orqali gapir.";promptEl.placeholder=en?"Type your message...":"Xabaringizni yozing...";$("sendBtn").textContent=en?"Send ➤":"Yuborish ➤";$("micBtn").textContent=en?"🎙 Speak":"🎙 Gapirish";});
-  $("micBtn").addEventListener("click",()=>{
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){addMessage("assistant","Brauzeringda ovoz orqali tanish funksiyasi mavjud emas. Chrome’da sinab ko‘r.");return;}
-    if(recognition){recognition.stop();recognition=null;return;}
-    recognition=new SR();recognition.lang=$("language").value==="en"?"en-US":"uz-UZ";recognition.interimResults=false;
-    recognition.onresult=e=>{promptEl.value=e.results[0][0].transcript;promptEl.focus();};
-    recognition.onerror=()=>addMessage("assistant","Mikrofon ishlamadi. Brauzer ruxsatlarini tekshir.");
-    recognition.onend=()=>{recognition=null;$("micBtn").textContent=$("language").value==="en"?"🎙 Speak":"🎙 Gapirish";};
-    recognition.start();$("micBtn").textContent="⏹ To‘xtatish";
+
+  $("clearBtn").addEventListener("click", () => {
+    if (!confirm(words[language].confirmClear)) return;
+    history = [{
+      role: "assistant",
+      content: words[language].cleared
+    }];
+    saveChat();
+    renderHistory();
   });
-  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("installBtn").hidden=false;});
-  $("installBtn").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("installBtn").hidden=true;}else alert("Chrome menyusidan Add to Home screen / Bosh ekranga qo‘shish bandini tanlang.");});
-  fetch("/api/health").then(r=>r.json()).then(d=>setStatus(d.configured?"AI READY":"API KEY NEEDED",d.configured)).catch(()=>setStatus("SERVER STARTING"));
-  if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+
+  $("langBtn").addEventListener("click", () => {
+    language = language === "uz" ? "en" : "uz";
+    localStorage.setItem(LANG_KEY, language);
+    updateLanguage();
+  });
+
+  $("micBtn").addEventListener("click", () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      addMessage("assistant",
+        language === "uz"
+          ? "Brauzeringiz ovozli kiritishni qo‘llab-quvvatlamaydi. Chrome brauzerida sinab ko‘ring."
+          : "Your browser does not support speech recognition. Try Chrome.");
+      return;
+    }
+
+    if (recognition) {
+      recognition.stop();
+      recognition = null;
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = language === "uz" ? "uz-UZ" : "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = event => {
+      promptEl.value = event.results[0][0].transcript;
+      recognition = null;
+      sendMessage();
+    };
+
+    recognition.onerror = () => {
+      recognition = null;
+      addMessage("assistant",
+        language === "uz"
+          ? "Mikrofon ishlamadi. Brauzer ruxsatlarini tekshiring."
+          : "Microphone failed. Check browser permissions.");
+    };
+
+    recognition.onend = () => { recognition = null; };
+    recognition.start();
+  });
+
+  // Matnni ovoz chiqarib o'qish uchun xabarni bosib turing.
+  messagesEl.addEventListener("dblclick", event => {
+    const message = event.target.closest(".message");
+    if (!message || !("speechSynthesis" in window)) return;
+
+    const body = message.querySelector("div");
+    if (!body) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(body.textContent);
+    utterance.lang = language === "uz" ? "uz-UZ" : "en-US";
+    window.speechSynthesis.speak(utterance);
+  });
+
+  updateLanguage();
+  loadHistory();
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+})();
 </script>
 </body>
 </html>

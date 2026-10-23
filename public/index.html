@@ -1,19 +1,487 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d1b">
+  <meta name="description" content="JARVIS ULTRA — shaxsiy AI yordamchi">
+  <title>JARVIS ULTRA</title>
 
-const response = await fetch("/api/chat", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    messages: history,
-    language: language
-  })
-});
+  <style>
+    * { box-sizing: border-box; }
 
-const data = await response.json();
+    :root {
+      color-scheme: dark;
+      --bg: #080d1b;
+      --panel: #101a2d;
+      --border: #263650;
+      --blue: #58a6ff;
+      --text: #edf4ff;
+      --muted: #94a7c4;
+    }
 
-if (!response.ok) {
-  throw new Error(data.error || "AI javob bermadi");
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at top, #142a49 0%, var(--bg) 58%);
+      color: var(--text);
+      font-family: system-ui, Arial, sans-serif;
+    }
 
-const reply = data.reply;
+    .app {
+      max-width: 850px;
+      height: 100dvh;
+      min-height: 500px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 12px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #0c1425ee;
+      border-radius: 18px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #1765b7, #6b5cff);
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    .subtitle { font-size: 12px; color: var(--muted); }
+
+    .online {
+      color: #69e6a2;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .tools {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, select {
+      border: 1px solid var(--border);
+      background: #17243a;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: .5; cursor: wait; }
+
+    #chat {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #0b1323cc;
+      scroll-behavior: smooth;
+    }
+
+    .welcome {
+      margin: auto;
+      max-width: 420px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+      padding: 20px;
+    }
+
+    .welcome strong {
+      display: block;
+      color: var(--text);
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 12px 15px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #183b65;
+      border-color: #2b5d91;
+      border-bottom-right-radius: 4px;
+    }
+
+    .assistant {
+      align-self: flex-start;
+      background: #121e32;
+      border-bottom-left-radius: 4px;
+    }
+
+    .error {
+      color: #ffb6b6;
+      border-color: #8c3a4a;
+      background: #351724;
+    }
+
+    #status {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 5px;
+      overflow-wrap: anywhere;
+    }
+
+    form {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      background: #0c1425;
+      border-radius: 17px;
+    }
+
+    textarea {
+      flex: 1;
+      min-width: 0;
+      max-height: 140px;
+      resize: vertical;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      padding: 10px 5px;
+      font: inherit;
+      font-size: 15px;
+    }
+
+    textarea::placeholder { color: #8192ad; }
+
+    #send {
+      background: linear-gradient(135deg, #1765b7, #5357df);
+      border: 0;
+      font-weight: 700;
+      min-width: 70px;
+      padding: 12px;
+    }
+
+    footer {
+      text-align: center;
+      color: #7587a3;
+      font-size: 11px;
+      padding-bottom: 3px;
+    }
+
+    @media (max-width: 520px) {
+      .app { padding: 8px; gap: 8px; }
+      header { padding: 9px; gap: 9px; }
+      .logo { width: 40px; height: 40px; }
+      h1 { font-size: 15px; }
+      .subtitle { font-size: 10px; }
+      button, select { padding: 8px; font-size: 12px; }
+      .message { max-width: 94%; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header>
+      <div class="logo">J</div>
+
+      <div>
+        <h1>JARVIS ULTRA</h1>
+        <div class="subtitle">Your personal AI assistant</div>
+        <div class="online">● AI assistant</div>
+      </div>
+
+      <div class="tools">
+        <select id="language" aria-label="Tilni tanlang">
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="voice" type="button" title="Ovoz bilan yozish">🎙️</button>
+        <button id="clear" type="button" title="Suhbatni tozalash">🗑️</button>
+      </div>
+    </header>
+
+    <section id="chat" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <strong>Salom, Janob Shohjahon!</strong>
+        Men JARVIS ULTRA — sizning AI yordamchingizman.
+        Menga savolingizni yozing.
+      </div>
+    </section>
+
+    <div id="status" role="status">Tayyor.</div>
+
+    <form id="form">
+      <textarea
+        id="input"
+        rows="1"
+        maxlength="4000"
+        placeholder="Xabaringizni yozing..."
+        aria-label="Xabar"
+        required
+      ></textarea>
+      <button id="send" type="submit">Yuborish</button>
+    </form>
+
+    <footer>JARVIS ULTRA · Powered by Groq</footer>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const chat = document.getElementById("chat");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const sendButton = document.getElementById("send");
+      const status = document.getElementById("status");
+      const languageSelect = document.getElementById("language");
+      const welcome = document.getElementById("welcome");
+
+      const STORAGE_KEY = "jarvisUltraHistory";
+      let history = [];
+      let busy = false;
+
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+        if (Array.isArray(saved)) {
+          history = saved.filter(item =>
+            item &&
+            ["user", "assistant"].includes(item.role) &&
+            typeof item.content === "string"
+          ).slice(-50);
+        }
+      } catch (error) {
+        history = [];
+      }
+
+      function saveHistory() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        } catch (error) {
+          status.textContent = "Suhbatni telefonda saqlab bo‘lmadi.";
+        }
+      }
+
+      function addMessage(role, content, isError = false) {
+        if (welcome && welcome.parentNode) {
+          welcome.remove();
+        }
+
+        const bubble = document.createElement("div");
+        bubble.className = "message " + role + (isError ? " error" : "");
+        bubble.textContent = content;
+        chat.appendChild(bubble);
+        chat.scrollTop = chat.scrollHeight;
+        return bubble;
+      }
+
+      function renderHistory() {
+        chat.replaceChildren();
+
+        if (history.length === 0) {
+          chat.appendChild(welcome);
+          welcome.querySelector("strong").textContent =
+            languageSelect.value === "en"
+              ? "Hello, Mr. Shohjahon!"
+              : "Salom, Janob Shohjahon!";
+
+          return;
+        }
+
+        history.forEach(item => addMessage(item.role, item.content));
+      }
+
+      function setBusy(value) {
+        busy = value;
+        sendButton.disabled = value;
+        input.disabled = value;
+        sendButton.textContent = value ? "..." : "Yuborish";
+      }
+
+      async function sendMessage(text) {
+        if (busy || !text.trim()) return;
+
+        const cleanText = text.trim();
+
+        history.push({ role: "user", content: cleanText });
+        history = history.slice(-50);
+        saveHistory();
+        addMessage("user", cleanText);
+
+        input.value = "";
+        input.style.height = "auto";
+        setBusy(true);
+        status.textContent = "JARVIS javob tayyorlamoqda...";
+
+        const typing = addMessage("assistant", "Javob kutilmoqda...");
+
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              messages: history.slice(-12),
+              language: languageSelect.value
+            })
+          });
+
+          const raw = await response.text();
+          let data;
+
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            throw new Error(
+              "Server JSON javobi bermadi. HTTP " + response.status
+            );
+          }
+
+          if (!response.ok) {
+            throw new Error(
+              data.error || "Server xatosi. HTTP " + response.status
+            );
+          }
+
+          if (typeof data.reply !== "string" || !data.reply.trim()) {
+            throw new Error("Serverdan AI javobi kelmadi.");
+          }
+
+          const reply = data.reply.trim();
+
+          typing.textContent = reply;
+          history.push({ role: "assistant", content: reply });
+          history = history.slice(-50);
+          saveHistory();
+
+          status.textContent = "Javob tayyor.";
+        } catch (error) {
+          typing.classList.add("error");
+          typing.textContent =
+            "Xatolik: " + (error.message || "Noma’lum xatolik");
+
+          status.textContent = "Javob olinmadi. Xatolik yuqorida ko‘rsatilgan.";
+          console.error("JARVIS chat error:", error);
+        } finally {
+          setBusy(false);
+          input.focus();
+          chat.scrollTop = chat.scrollHeight;
+        }
+      }
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        sendMessage(input.value);
+      });
+
+      input.addEventListener("input", () => {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 140) + "px";
+      });
+
+      input.addEventListener("keydown", event => {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey &&
+          !event.isComposing
+        ) {
+          event.preventDefault();
+          form.requestSubmit();
+        }
+      });
+
+      document.getElementById("clear").addEventListener("click", () => {
+        if (!confirm("Suhbat tarixini o‘chiraymi?")) return;
+
+        history = [];
+        saveHistory();
+        renderHistory();
+        status.textContent = "Suhbat tozalandi.";
+      });
+
+      languageSelect.addEventListener("change", () => {
+        renderHistory();
+        status.textContent =
+          languageSelect.value === "en" ? "Ready." : "Tayyor.";
+      });
+
+      document.getElementById("voice").addEventListener("click", () => {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+          status.textContent =
+            "Bu brauzer ovoz bilan yozishni qo‘llab-quvvatlamaydi.";
+          return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = languageSelect.value === "en" ? "en-US" : "uz-UZ";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        status.textContent = "Gapiring...";
+
+        recognition.onresult = event => {
+          input.value = event.results[0][0].transcript;
+          input.dispatchEvent(new Event("input"));
+          status.textContent = "Ovoz matnga aylantirildi.";
+        };
+
+        recognition.onerror = event => {
+          status.textContent = "Ovoz xatosi: " + event.error;
+        };
+
+        recognition.onend = () => {
+          if (status.textContent === "Gapiring...") {
+            status.textContent = "Ovoz kiritish tugadi.";
+          }
+        };
+
+        try {
+          recognition.start();
+        } catch (error) {
+          status.textContent = "Ovoz kiritishni qayta boshlang.";
+        }
+      });
+
+      renderHistory();
+    })();
+  </script>
+</body>
+</html>
+
